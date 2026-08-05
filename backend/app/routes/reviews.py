@@ -7,7 +7,7 @@ class ReviewList(Resource):
     @jwt_required()
     def post(self):
         """Create a new review"""
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         data = request.get_json()
         
         # Check if course exists
@@ -40,7 +40,7 @@ class ReviewDetail(Resource):
     @jwt_required()
     def delete(self, review_id):
         """Delete a review (only the author or admin)"""
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         user = User.query.get(current_user_id)
         review = Review.query.get(review_id)
         

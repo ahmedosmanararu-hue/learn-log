@@ -10,7 +10,7 @@ class EnrollmentUpdate(Resource):
     @jwt_required()
     def put(self, enrollment_id):
         """Update grade or status of an enrollment"""
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         user = User.query.get(current_user_id)
         enrollment = Enrollment.query.get(enrollment_id)
         

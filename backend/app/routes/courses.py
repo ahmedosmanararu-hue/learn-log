@@ -33,7 +33,7 @@ class CourseList(Resource):
     @jwt_required()
     def post(self):
         """Create a new LEGO instruction book (instructors only)"""
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         user = User.query.get(current_user_id)
         
         if user.role not in ['instructor', 'admin']:
@@ -67,7 +67,7 @@ class CourseDetail(Resource):
     @jwt_required()
     def put(self, course_id):
         """Update a LEGO instruction book (instructor only)"""
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         user = User.query.get(current_user_id)
         course = Course.query.get(course_id)
         
@@ -89,7 +89,7 @@ class CourseDetail(Resource):
     @jwt_required()
     def delete(self, course_id):
         """Delete a LEGO instruction book (instructor only)"""
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         user = User.query.get(current_user_id)
         course = Course.query.get(course_id)
         
@@ -107,7 +107,7 @@ class CourseEnroll(Resource):
     @jwt_required()
     def post(self, course_id):
         """Sign up for a LEGO workshop (students only)"""
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         user = User.query.get(current_user_id)
         
         if user.role != 'student':

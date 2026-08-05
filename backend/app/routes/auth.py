@@ -16,7 +16,7 @@ class Register(Resource):
         
         # Create new user
         user = User(
-            email=data['email'],
+            email=data['email'].strip().lower(),
             role=data.get('role', 'student')
         )
         user.set_password(data['password'])
@@ -42,14 +42,15 @@ class Login(Resource):
         """Like showing your LEGO club membership card"""
         data = request.get_json()
         
-        user = User.query.filter_by(email=data['email']).first()
+        email = data.get('email', '').strip().lower()
+        user = User.query.filter_by(email=email).first()
         
         if not user or not user.check_password(data['password']):
             return {'message': 'Invalid email or password'}, 401
         
-        # Create JWT tokens - like getting a temporary key to the castle
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
+        # Create JWT tokens - use string identities so JWT subject claims are valid
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
         
         return {
             'access_token': access_token,

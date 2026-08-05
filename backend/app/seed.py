@@ -21,8 +21,10 @@ def seed_data():
         names = ['Alice', 'Bob', 'Charlie', 'Dr. Smith', 'Prof. Jones', 'Admin User']
         
         for i, (name, role) in enumerate(zip(names, roles)):
+            # Normalize names to create valid seed emails like adminuser@example.com
+            normalized_name = name.lower().replace(' ', '')
             user = User(
-                email=f'{name.lower()}@example.com',
+                email=f'{normalized_name}@example.com',
                 role=role
             )
             user.set_password('password123')

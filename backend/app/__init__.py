@@ -18,12 +18,15 @@ def create_app():
     # Create the Flask app - like setting up our LEGO workspace
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    #Enable CORS for cross-origin requests from Vercel frontend
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "https://*.vercel.app"]}})
     
     # Initialize our tools
     db.init_app(app)
     bcrypt.init_app(app)
     jwt = JWTManager(app)
-    CORS(app)  # Allows frontend to talk to backend
+    
     
     # Create the API
     api = Api(app)
