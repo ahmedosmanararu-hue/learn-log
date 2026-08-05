@@ -6,3 +6,6 @@ node_modules/
 dist/
 .DS_Store
 *.log
+# Ignore backend virtual environment created in-project
+backend/.venv/
+backend/.venv/*
