@@ -1,10 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../api/config';
 
 export const Dashboard = () => {
   const { user } = useAuth();
-  const { data, loading, error } = useFetch('http://localhost:5000/dashboard/stats');
+  const { data, loading, error } = useFetch(`${API_BASE_URL}/dashboard/stats`);
 
   if (loading) {
     return <div className="loading">Loading dashboard...</div>;
@@ -36,6 +38,14 @@ export const Dashboard = () => {
           <p className="stat-number">{data?.average_grade?.toFixed(1) || 'N/A'}</p>
         </div>
       </div>
+
+      {['instructor', 'admin'].includes(user?.role) && (
+        <div className="dashboard-actions">
+          <Link to="/courses/create" className="create-button">
+            Add New Course
+          </Link>
+        </div>
+      )}
 
       <div className="enrollments-section">
         <h2>My Enrollments</h2>

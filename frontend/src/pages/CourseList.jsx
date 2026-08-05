@@ -4,6 +4,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useFetch } from '../hooks/useFetch';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../api/config';
 
 export const CourseList = () => {
   const [page, setPage] = useState(1);
@@ -14,7 +15,7 @@ export const CourseList = () => {
   
   // Build URL with useMemo to prevent unnecessary updates
   const url = useMemo(() => {
-    let baseUrl = `http://localhost:5000/courses?page=${page}&per_page=10`;
+    let baseUrl = `${API_BASE_URL}/courses?page=${page}&per_page=10`;
     if (category) baseUrl += `&category=${category}`;
     if (difficulty) baseUrl += `&difficulty=${difficulty}`;
     return baseUrl;
@@ -84,7 +85,7 @@ export const CourseList = () => {
       </div>
 
       <div className="courses-grid">
-        {data?.courses?.length === 0 ? (
+        {data && data.courses?.length === 0 ? (
           <p>No courses found.</p>
         ) : (
           data?.courses?.map(course => (

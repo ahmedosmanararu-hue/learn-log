@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../api/config';
 
 export const CourseDetail = () => {
   const { id } = useParams();
@@ -14,18 +15,18 @@ export const CourseDetail = () => {
   const [reviewError, setReviewError] = useState('');
 
   const { data, loading, error, refetch } = useFetch(
-    `http://localhost:5000/courses/${id}`
+    `${API_BASE_URL}/courses/${id}`
   );
 
   const isInstructor = user?.role === 'instructor' || user?.role === 'admin';
-  const isOwner = data?.course?.instructor_id === user?.id;
+  const isOwner = data?.instructor_id === user?.id;
 
   const handleEnroll = async () => {
     setEnrolling(true);
     setEnrollError('');
     
     try {
-      const response = await fetch(`http://localhost:5000/courses/${id}/enroll`, {
+      const response = await fetch(`${API_BASE_URL}/courses/${id}/enroll`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +55,7 @@ export const CourseDetail = () => {
     setReviewError('');
 
     try {
-      const response = await fetch('http://localhost:5000/reviews', {
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,7 +90,7 @@ export const CourseDetail = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/courses/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/courses/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
