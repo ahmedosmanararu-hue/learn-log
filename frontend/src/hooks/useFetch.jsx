@@ -1,6 +1,6 @@
 // frontend/src/hooks/useFetch.jsx
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export const useFetch = (url, options = {}) => {
@@ -8,78 +8,66 @@ export const useFetch = (url, options = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token, logout } = useAuth();
-  
-  // Add a ref to prevent multiple fetches
-  const isMounted = useRef(true);
-  const fetchCount = useRef(0);
 
-  const fetchData = useCallback(async () => {
-    // Prevent multiple simultaneous fetches
-    if (fetchCount.current > 0) {
-      console.log('Skipping duplicate fetch');
-      return;
-    }
-    
-    fetchCount.current += 1;
+  const serializedOptions = useMemo(() => JSON.stringify(options), [options]);
+
+  const fetchData = useCallback(async (signal) => {
     setLoading(true);
     setError(null);
 
     try {
       const headers = {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...(options.headers || {}),
       };
 
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        headers.Authorization = `Bearer ${token}`;
       }
 
-      console.log('Fetching:', url);
-
       const response = await fetch(url, {
+        signal,
         ...options,
         headers,
       });
 
       if (response.status === 401) {
-        console.log('Token expired, logging out');
         logout();
         throw new Error('Session expired. Please login again.');
       }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Request failed');
+        const contentType = response.headers.get('content-type') || '';
+        const errorText = contentType.includes('application/json')
+          ? (await response.json()).message
+          : await response.text();
+        throw new Error(errorText || 'Request failed');
       }
 
       const result = await response.json();
-      
-      if (isMounted.current) {
-        setData(result);
-      }
+      setData(result);
+      return result;
     } catch (err) {
-      console.error('Fetch error:', err);
-      if (isMounted.current) {
-        setError(err.message);
+      if (err.name === 'AbortError') {
+        return;
       }
+      setError(err.message || 'Request failed');
+      throw err;
     } finally {
-      if (isMounted.current) {
-        setLoading(false);
-      }
-      fetchCount.current = 0;
+      setLoading(false);
     }
-  }, [url, options, token, logout]);
+  }, [url, token, logout, serializedOptions]);
 
   useEffect(() => {
-    // Reset fetch count when URL changes
-    fetchCount.current = 0;
-    fetchData();
-    
-    // Cleanup function
-    return () => {
-      isMounted.current = false;
-    };
+    const controller = new AbortController();
+    fetchData(controller.signal).catch(() => {});
+    return () => controller.abort();
   }, [fetchData]);
 
-  return { data, loading, error, refetch: fetchData };
+  const refetch = useCallback(() => {
+    const controller = new AbortController();
+    fetchData(controller.signal).catch(() => {});
+  }, [fetchData]);
+
+  return { data, loading, error, refetch };
 };
