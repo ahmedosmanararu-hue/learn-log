@@ -5,7 +5,7 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from app.config import Config
-from app.models import db, bcrypt, User, Profile
+from app.models import db, bcrypt, User, Profile, Course, Lesson, Enrollment, Review
 
 # Import our routes (the doorways)
 from app.routes.auth import Register, Login
@@ -17,6 +17,7 @@ from app.routes.stats import DashboardStats, TopInstructors
 def _ensure_database_ready(app):
     with app.app_context():
         db.create_all()
+
         if User.query.count() == 0:
             sample_users = [
                 ('alice@example.com', 'student', 'I love learning about Python!', 'video, hands-on'),
@@ -39,6 +40,54 @@ def _ensure_database_ready(app):
                 db.session.add(profile)
             db.session.commit()
             print('Created sample users for deployed login.')
+
+        if Course.query.count() == 0:
+            instructors = User.query.filter(User.role.in_(['instructor', 'admin'])).all()
+            course_data = [
+                {'title': 'Python Programming 101', 'description': 'Learn the basics of Python programming from scratch', 'category': 'Programming', 'difficulty': 'beginner'},
+                {'title': 'Advanced Python Patterns', 'description': 'Master advanced Python programming techniques', 'category': 'Programming', 'difficulty': 'advanced'},
+                {'title': 'Web Development with React', 'description': 'Build modern web applications with React', 'category': 'Web Development', 'difficulty': 'intermediate'},
+                {'title': 'Database Design', 'description': 'Learn how to design efficient databases', 'category': 'Database', 'difficulty': 'intermediate'},
+                {'title': 'Introduction to AI', 'description': 'Explore the fundamentals of artificial intelligence', 'category': 'AI/ML', 'difficulty': 'beginner'}
+            ]
+            courses = []
+            for data in course_data:
+                instructor = instructors[len(courses) % len(instructors)] if instructors else None
+                course = Course(
+                    title=data['title'],
+                    description=data['description'],
+                    category=data['category'],
+                    difficulty=data['difficulty'],
+                    instructor_id=instructor.id if instructor else None
+                )
+                courses.append(course)
+                db.session.add(course)
+            db.session.commit()
+            print('Created sample courses for deployed backend.')
+
+        if Enrollment.query.count() == 0:
+            students = User.query.filter_by(role='student').all()
+            courses = Course.query.all()
+            for i, student in enumerate(students):
+                if not courses:
+                    break
+                course = courses[i % len(courses)]
+                enrollment = Enrollment(user_id=student.id, course_id=course.id, grade=85.0, status='active')
+                db.session.add(enrollment)
+            db.session.commit()
+            print('Created sample enrollments for deployed dashboard.')
+
+        if Review.query.count() == 0:
+            students = User.query.filter_by(role='student').all()
+            courses = Course.query.all()
+            for i, student in enumerate(students):
+                if not courses:
+                    break
+                course = courses[i % len(courses)]
+                review = Review(user_id=student.id, course_id=course.id, rating=4, comment=f'Great course! I learned a lot about {course.title}')
+                db.session.add(review)
+            db.session.commit()
+            print('Created sample reviews for deployed backend.')
 
 
 def create_app():
