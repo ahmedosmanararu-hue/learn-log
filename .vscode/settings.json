@@ -1,0 +1,12 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+    "python.pythonPath": "${workspaceFolder}/backend/.venv/bin/python",
+    "python.venvPath": "${workspaceFolder}/backend",
+    "python.analysis.extraPaths": [
+        "backend",
+        "backend/app",
+        "backend/.venv/lib/python3.12/site-packages",
+        "backend/.venv/lib64/python3.12/site-packages"
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:system"
+}

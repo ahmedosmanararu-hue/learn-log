@@ -9,6 +9,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { CourseList } from './pages/CourseList';
 import { CourseDetail } from './pages/CourseDetail';
+import { CourseCreate } from './pages/CourseCreate';
 import { Dashboard } from './pages/Dashboard';
 import './App.css';
 
@@ -26,6 +27,11 @@ const App = memo(() => {
               <Route path="/" element={
                 <ProtectedRoute>
                   <CourseList />
+                </ProtectedRoute>
+              } />
+              <Route path="/courses/create" element={
+                <ProtectedRoute>
+                  <CourseCreate />
                 </ProtectedRoute>
               } />
               <Route path="/courses/:id" element={

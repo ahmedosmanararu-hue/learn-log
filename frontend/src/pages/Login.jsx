@@ -15,7 +15,7 @@ export const Login = () => {
     setError('');
     setLoading(true);
 
-    const result = await login(email, password);
+    const result = await login(email.trim().toLowerCase(), password);
     
     if (result.success) {
       navigate('/');
@@ -63,7 +63,10 @@ export const Login = () => {
         <div className="test-accounts">
           <p><strong>Test Accounts:</strong></p>
           <p>alice@example.com / password123 (Student)</p>
-          <p>drsmith@example.com / password123 (Instructor)</p>
+          <p>bob@example.com / password123 (Student)</p>
+          <p>charlie@example.com / password123 (Student)</p>
+          <p>dr.smith@example.com / password123 (Instructor)</p>
+          <p>prof.jones@example.com / password123 (Instructor)</p>
           <p>adminuser@example.com / password123 (Admin)</p>
         </div>
       </div>
