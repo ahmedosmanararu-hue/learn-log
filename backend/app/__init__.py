@@ -20,7 +20,7 @@ def create_app():
     app.config.from_object(Config)
 
     #Enable CORS for cross-origin requests from Vercel frontend
-    CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "https://*.vercel.app"]}})
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)  # Allow credentials (cookies, auth headers) to be sent]}})
     
     # Initialize our tools
     db.init_app(app)
