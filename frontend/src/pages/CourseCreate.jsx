@@ -13,7 +13,9 @@ export const CourseCreate = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+
+  const allowedToCreate = user && (user.role === 'instructor' || user.role === 'admin');
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -24,6 +26,12 @@ export const CourseCreate = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (!token || !allowedToCreate) {
+      setError('You must be logged in as an instructor to create courses.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/courses`, {
@@ -51,6 +59,10 @@ export const CourseCreate = () => {
   return (
     <div className="course-create">
       <h1>Create New Course</h1>
+      {!allowedToCreate && (
+        <div className="info-message">Only users with the <strong>instructor</strong> role can create courses.</div>
+      )}
+
       <form onSubmit={handleSubmit} className="course-form">
         <div className="form-group">
           <label htmlFor="title">Title</label>
@@ -108,7 +120,7 @@ export const CourseCreate = () => {
 
         {error && <div className="error-message">Error: {error}</div>}
 
-        <button type="submit" disabled={loading} className="submit-button">
+        <button type="submit" disabled={loading || !allowedToCreate} className="submit-button">
           {loading ? 'Creating...' : 'Create Course'}
         </button>
       </form>
