@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(async (email, password) => {
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://learn-log-1.onrender.com'; // Default to production URL if not set
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://learn-log-1.onrender.com'; // Default to production URL if not set
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
